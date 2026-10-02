@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>영화 '오디세이' 리뷰 빅데이터 분석 발표 | 왓챠 vs 네이버</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- FontAwesome CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <!-- Pretendard Font -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Pretendard', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              gold: '#F59E0B',
+              amber: '#D97706',
+              cyan: '#06B6D4',
+              blue: '#3B82F6',
+              watcha: '#FF0558',
+              naver: '#03C75A'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      font-family: 'Pretendard', sans-serif;
+      overflow: hidden;
+      user-select: none;
+      background-color: #030712;
+      color: #F3F4F6;
+    }
+    .slide {
+      display: none;
+      opacity: 0;
+      transform: scale(0.98) translateY(10px);
+      transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .slide.active {
+      display: flex;
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+    .glass-card {
+      background: rgba(17, 24, 39, 0.75);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .gold-gradient-text {
+      background: linear-gradient(135deg, #FDE68A 0%, #F59E0B 50%, #D97706 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .cyan-gradient-text {
+      background: linear-gradient(135deg, #A5F3FC 0%, #06B6D4 50%, #0284C7 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    /* Custom scrollbar for slide internal content if needed */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.2);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 3px;
+    }
+  </style>
+</head>
+<body class="w-screen h-screen flex flex-col justify-between relative bg-slate-950">
+
+  <!-- Ambient Cinematic Background Glow -->
+  <div class="absolute inset-0 pointer-events-none overflow-hidden z-0">
+    <div class="absolute -top-40 -left-40 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl animate-pulse"></div>
+    <div class="absolute -bottom-40 -right-40 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl animate-pulse" style="animation-delay: 2s;"></div>
+  </div>
+
+  <!-- Top Navigation Bar -->
+  <header class="w-full px-8 py-4 flex items-center justify-between z-20 border-b border-white/10 glass-card">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-lg bg-gradient-to-tr from-amber-500 to-amber-300 flex items-center justify-center text-slate-950 font-black shadow-lg shadow-amber-500/20">
+        <i class="fa-solid fa-film"></i>
+      </div>
+      <div>
+        <h1 class="text-sm font-bold tracking-wider uppercase text-slate-300">ODYSSEY (2026) <span class="text-amber-400">DATA REPORT</span></h1>
+        <p class="text-xs text-slate-500">왓챠피디아 vs 네이버 관람객 리뷰 빅데이터 분석</p>
+      </div>
+    </div>
+    
+    <!-- Controls & Status -->
+    <div class="flex items-center gap-4">
+      <div class="text-xs font-mono text-slate-400 bg-slate-900/80 px-3 py-1.5 rounded-full border border-slate-800">
+        <span id="currentSlideNum">1</span> / <span id="totalSlideNum">9</span>
+      </div>
+      <button onclick="toggleFullScreen()" title="전체화면 (F)" class="p-2 text-slate-400 hover:text-white transition-colors">
+        <i class="fa-solid fa-expand"></i>
+      </button>
+      <a href="https://github.com/openminded0805-create" target="_blank" class="text-xs text-slate-400 hover:text-amber-400 transition-colors flex items-center gap-1.5 bg-slate-900/60 px-3 py-1.5 rounded-lg border border-slate-800">
+        <i class="fa-brands fa-github"></i> GitHub
+      </a>
+    </div>
+  </header>
+
+  <!-- Slide Container -->
+  <main class="flex-1 w-full h-[calc(100vh-130px)] relative overflow-hidden z-10 p-6 md:p-10 flex items-center justify-center">
+
+    <!-- SLIDE 1: Title Hero -->
+    <section class="slide active flex-col justify-center items-center text-center w-full max-w-6xl h-full relative" data-slide="1">
+      <div class="absolute inset-0 rounded-3xl overflow-hidden -z-10 shadow-2xl border border-white/10">
+        <img src="assets/images/hero_poster.jpg" alt="Odyssey Movie Hero Poster" class="w-full h-full object-cover object-center brightness-[0.38] contrast-125 scale-105 transition-transform duration-1000">
+        <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/60 to-transparent"></div>
+      </div>
+      
+      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/20 border border-amber-400/30 text-amber-300 text-xs font-semibold mb-6 tracking-widest uppercase">
+        <i class="fa-solid fa-sparkles text-amber-400"></i> Big Data Review Intelligence Report
+      </div>
+      
+      <h2 class="text-4xl md:text-6xl lg:text-7xl font-black tracking-tight mb-4 leading-tight">
+        신화가 된 영화, <br><span class="gold-gradient-text">&lt;오디세이&gt;</span> 관람객 데이터 분석
+      </h2>
+      
+      <p class="text-base md:text-xl text-slate-300 max-w-2xl font-light mb-10 leading-relaxed">
+        크리스토퍼 놀란의 2026년 대작. 왓챠피디아와 네이버에 등재된 실관람객 리뷰 59건 전수 수집 및 플랫폼별 평가 성향 심층 비교
+      </p>
+
+      <div class="flex flex-wrap items-center justify-center gap-4 text-xs md:text-sm font-medium">
+        <div class="glass-card px-5 py-3 rounded-xl flex items-center gap-3">
+          <i class="fa-solid fa-database text-brand-cyan"></i>
+          <span>수집 표본: <strong class="text-white font-bold">59건</strong> (왓챠 29건 + 네이버 30건)</span>
+        </div>
+        <div class="glass-card px-5 py-3 rounded-xl flex items-center gap-3">
+          <i class="fa-solid fa-star text-amber-400"></i>
+          <span>종합 호평율: <strong class="text-amber-400 font-bold">100%</strong></span>
+        </div>
+        <div class="glass-card px-5 py-3 rounded-xl flex items-center gap-3">
+          <i class="fa-solid fa-bolt text-indigo-400"></i>
+          <span>수집 파이프라인: <strong class="text-white font-bold">Firecrawl Search & Scrape</strong></span>
+        </div>
+      </div>
+      
+      <p class="mt-8 text-xs text-slate-400 animate-bounce">
+        <i class="fa-solid fa-arrow-right mr-1"></i> 방향키(→) 또는 스페이스바를 눌러 다음 슬라이드로 이동하세요
+      </p>
+    </section>
+
+    <!-- SLIDE 2: Executive Summary & Highlights -->
+    <section class="slide flex-col justify-center w-full max-w-6xl h-full" data-slide="2">
+      <div class="mb-6">
+        <span class="text-xs font-bold text-amber-400 tracking-wider uppercase">Slide 02 / Key Findings</span>
+        <h2 class="text-3xl md:text-4xl font-extrabold text-white mt-1">핵심 분석 요약 (Executive Summary)</h2>
+        <p class="text-slate-400 text-sm">두 플랫폼 모두 90% 이상의 압도적 극찬을 기록했으나, 감상 포인트에서 뚜렷한 양극화 관찰</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 my-auto">
+        <!-- Card 1 -->
+        <div class="glass-card p-6 rounded-2xl border-l-4 border-amber-500 hover:border-amber-400 transition-all hover:-translate-y-1">
+          <div class="flex justify-between items-start mb-4">
+            <span class="text-3xl font-black text-amber-400">4.30 <span class="text-sm font-normal text-slate-400">/ 5.0</span></span>
+            <div class="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-400 text-lg">
+              <i class="fa-solid fa-award"></i>
+            </div>
+          </div>
+          <h3 class="text-lg font-bold text-white mb-2">왓챠피디아: '예술적 서사의 정점'</h3>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            환산 평점 <strong class="text-amber-300">8.6점</strong>. 고대 그리스 서사시의 압축과 신화 인물의 심리적 고찰, 앤 해서웨이 연기력에 대한 찬사가 주를 이룸. 상업 영화 대비 느린 호흡에 대한 호불호가 일부 존재.
+          </p>
+          <div class="mt-4 pt-3 border-t border-white/10 flex items-center justify-between text-xs text-slate-400">
+            <span>키워드: 예술성, 서사 밀도</span>
+            <span class="text-brand-watcha font-semibold">Watcha Pedia</span>
+          </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="glass-card p-6 rounded-2xl border-l-4 border-cyan-500 hover:border-cyan-400 transition-all hover:-translate-y-1">
+          <div class="flex justify-between items-start mb-4">
+            <span class="text-3xl font-black text-cyan-400">9.30 <span class="text-sm font-normal text-slate-400">/ 10.0</span></span>
+            <div class="w-10 h-10 rounded-xl bg-cyan-500/10 flex items-center justify-center text-cyan-400 text-lg">
+              <i class="fa-solid fa-glasses"></i>
+            </div>
+          </div>
+          <h3 class="text-lg font-bold text-white mb-2">네이버: 'IMAX 특별관 필수 경험'</h3>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            골든에그 97%와 일치하는 압도적 호평. 루드비히 고란손의 타악 OST, 거인 병사 전투 및 트로이 목마의 시청각 전율 강조. 화장실 타이밍과 결말 복선 해석 등 실용적 팁 공유 활발.
+          </p>
+          <div class="mt-4 pt-3 border-t border-white/10 flex items-center justify-between text-xs text-slate-400">
+            <span>키워드: IMAX, 압도적 사운드</span>
+            <span class="text-brand-naver font-semibold">Naver Blog</span>
+          </div>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="glass-card p-6 rounded-2xl border-l-4 border-indigo-500 hover:border-indigo-400 transition-all hover:-translate-y-1">
+          <div class="flex justify-between items-start mb-4">
+            <span class="text-3xl font-black text-indigo-400">172 <span class="text-sm font-normal text-slate-400">min</span></span>
+            <div class="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-400 text-lg">
+              <i class="fa-solid fa-clock"></i>
+            </div>
+          </div>
+          <h3 class="text-lg font-bold text-white mb-2">공통점: '극장이 존재하는 이유'</h3>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            3시간에 육박하는 러닝타임에도 불구하고 관람객의 95% 이상이 "단 한 순간도 지루하지 않았다" 혹은 "반드시 스크린에서 봐야 할 작품"이라 응답. 놀란 감독의 신뢰도 공고화.
+          </p>
+          <div class="mt-4 pt-3 border-t border-white/10 flex items-center justify-between text-xs text-slate-400">
+            <span>키워드: 극장 독점적 가치</span>
+            <span class="text-indigo-300 font-semibold">Cinema Rebound</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 3: Data Pipeline & Methodology -->
+    <section class="slide flex-col justify-center w-full max-w-6xl h-full" data-slide="3">
+      <div class="mb-6">
+        <span class="text-xs font-bold text-amber-400 tracking-wider uppercase">Slide 03 / Data Pipeline</span>
+        <h2 class="text-3xl md:text-4xl font-extrabold text-white mt-1">수집 아키텍처 및 정제 파이프라인</h2>
+        <p class="text-slate-400 text-sm">Firecrawl v2 API의 Search & Scrape Markdown 엔진을 활용한 실시간 크롤링</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 my-auto">
+        <div class="glass-card p-5 rounded-2xl flex flex-col items-center text-center relative group">
+          <div class="w-12 h-12 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition-transform">
+            <i class="fa-solid fa-magnifying-glass"></i>
+          </div>
+          <span class="text-xs font-mono text-amber-400 mb-1">STEP 01</span>
+          <h4 class="text-base font-bold text-white mb-2">다중 쿼리 검색</h4>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            왓챠피디아(`/comments/`) 및 네이버 블로그 검색 쿼리 12개 가동하여 최신 관람객 데이터 탐색
+          </p>
+        </div>
+
+        <div class="glass-card p-5 rounded-2xl flex flex-col items-center text-center relative group">
+          <div class="w-12 h-12 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition-transform">
+            <i class="fa-solid fa-filter"></i>
+          </div>
+          <span class="text-xs font-mono text-cyan-400 mb-1">STEP 02</span>
+          <h4 class="text-base font-bold text-white mb-2">노이즈 필터링</h4>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            1968년작 <em>'2001 스페이스 오디세이'</em> 등 동명 영화 및 광고성 스팸 포스팅 정밀 제거
+          </p>
+        </div>
+
+        <div class="glass-card p-5 rounded-2xl flex flex-col items-center text-center relative group">
+          <div class="w-12 h-12 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition-transform">
+            <i class="fa-solid fa-file-lines"></i>
+          </div>
+          <span class="text-xs font-mono text-indigo-400 mb-1">STEP 03</span>
+          <h4 class="text-base font-bold text-white mb-2">배치 마크다운 스크랩</h4>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            Firecrawl Markdown 변환으로 HTML 보일러플레이트를 제거하고 본문 감상평과 평점 추출
+          </p>
+        </div>
+
+        <div class="glass-card p-5 rounded-2xl flex flex-col items-center text-center relative group">
+          <div class="w-12 h-12 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition-transform">
+            <i class="fa-solid fa-table-cells"></i>
+          </div>
+          <span class="text-xs font-mono text-emerald-400 mb-1">STEP 04</span>
+          <h4 class="text-base font-bold text-white mb-2">구조화 및 통계 분석</h4>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            `movie_reviews.csv`(59건) 및 `review_comparison.csv` 정형화 저장 (UTF-8-SIG)
+          </p>
+        </div>
+      </div>
+
+      <div class="mt-6 glass-card p-4 rounded-xl flex items-center justify-between text-xs text-slate-300">
+        <div class="flex items-center gap-3">
+          <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-mono font-semibold">SUCCESS</span>
+          <span>Firecrawl v2 API 호출 정밀 제어로 Rate Limit 초과 없이 59건 전수 수집 완료</span>
+        </div>
+        <span class="font-mono text-slate-400">Total Credits Used: ~15</span>
+      </div>
+    </section>
+
+    <!-- SLIDE 4: Quantitative Comparison & Rating Chart -->
+    <section class="slide flex-col justify-center w-full max-w-6xl h-full" data-slide="4">
+      <div class="mb-4">
+        <span class="text-xs font-bold text-amber-400 tracking-wider uppercase">Slide 04 / Quantitative Analysis</span>
+        <h2 class="text-3xl md:text-4xl font-extrabold text-white mt-1">플랫폼별 정량 평점 및 평가 분포</h2>
+        <p class="text-slate-400 text-sm">왓챠피디아(5점 만점 기준) vs 네이버(10점 만점 기준) 환산 평점 비교</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-6 my-auto items-center">
+        <!-- Chart Container -->
+        <div class="md:col-span-7 glass-card p-5 rounded-2xl h-[340px] flex flex-col justify-center">
+          <div class="flex justify-between items-center mb-3">
+            <h4 class="text-sm font-bold text-slate-300">10점 만점 환산 평점 및 긍정 평가율 비교</h4>
+            <span class="text-xs text-slate-500 font-mono">단위: 점 / %</span>
+          </div>
+          <div class="relative w-full h-[270px]">
+            <canvas id="ratingComparisonChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Metric Cards -->
+        <div class="md:col-span-5 flex flex-col gap-4">
+          <div class="glass-card p-5 rounded-2xl border-l-4 border-brand-watcha">
+            <div class="flex justify-between items-center mb-1">
+              <span class="text-sm font-bold text-white">왓챠피디아 평점</span>
+              <span class="text-xs px-2 py-0.5 rounded bg-brand-watcha/20 text-brand-watcha font-bold">29건 표본</span>
+            </div>
+            <div class="flex items-baseline gap-2">
+              <span class="text-3xl font-black text-white">4.30</span>
+              <span class="text-xs text-slate-400">/ 5.0 (환산 8.6점)</span>
+            </div>
+            <p class="text-xs text-slate-300 mt-2">
+              표준편차가 작고 4.0~4.5점 구간에 90% 이상 집중. 전형적인 "시네필 취향 저격" 분포를 나타냄.
+            </p>
+          </div>
+
+          <div class="glass-card p-5 rounded-2xl border-l-4 border-brand-naver">
+            <div class="flex justify-between items-center mb-1">
+              <span class="text-sm font-bold text-white">네이버 관람평</span>
+              <span class="text-xs px-2 py-0.5 rounded bg-brand-naver/20 text-brand-naver font-bold">30건 표본</span>
+            </div>
+            <div class="flex items-baseline gap-2">
+              <span class="text-3xl font-black text-white">9.30</span>
+              <span class="text-xs text-slate-400">/ 10.0</span>
+            </div>
+            <p class="text-xs text-slate-300 mt-2">
+              CGV 골든에그지수(97%)와 결을 같이하는 9점대 초고득점. 특별관 경험에 기인한 대중적 열광 반영.
+            </p>
+          </div>
+
+          <div class="glass-card p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-200">
+            <i class="fa-solid fa-lightbulb mr-1.5 text-amber-400"></i>
+            <strong>인사이트:</strong> 네이버 관람객이 체감하는 평점이 왓챠 대비 약 0.7점 높게 형성되며, 이는 특별관 시청각 효과에 대한 관대함이 반영된 결과입니다.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 5: Watcha Pedia Deep Dive -->
+    <section class="slide flex-col justify-center w-full max-w-6xl h-full" data-slide="5">
+      <div class="mb-4">
+        <span class="text-xs font-bold text-brand-watcha tracking-wider uppercase">Slide 05 / Platform Focus</span>
+        <h2 class="text-3xl md:text-4xl font-extrabold text-white mt-1">왓챠피디아: 고전의 해체와 인간성의 질문</h2>
+        <p class="text-slate-400 text-sm">영화적 미학, 서사의 밀도, 그리고 철학적 탐구에 집중하는 관객층</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-6 my-auto items-center">
+        <!-- Visual Asset -->
+        <div class="md:col-span-5 h-[340px] rounded-2xl overflow-hidden glass-card relative group">
+          <img src="assets/images/myth_journey.jpg" alt="Odysseus Myth Journey" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent flex flex-col justify-end p-5">
+            <span class="text-xs text-amber-400 font-semibold">고전 서사시의 재해석</span>
+            <h4 class="text-sm font-bold text-white">"영웅의 영광이 아닌, 필멸자의 발걸음"</h4>
+          </div>
+        </div>
+
+        <!-- Quotes & Points -->
+        <div class="md:col-span-7 flex flex-col gap-3">
+          <!-- Quote 1 -->
+          <div class="glass-card p-4 rounded-xl border border-white/5 hover:border-amber-400/30 transition-colors">
+            <div class="flex items-center gap-2 mb-1.5">
+              <span class="text-xs font-bold text-amber-400"><i class="fa-solid fa-quote-left mr-1"></i>영상</span>
+              <span class="text-xs text-slate-500">왓챠 코멘트 (4.3점)</span>
+            </div>
+            <p class="text-xs text-slate-200 leading-relaxed italic">
+              "영화관에서 보지 않으면 손해인 예술 작품. 방대한 오디세이아 속 인물 서사를 포기하지 않으면서 이렇게 밀도 있게 축약한 점에 감탄했다."
+            </p>
+          </div>
+
+          <!-- Quote 2 -->
+          <div class="glass-card p-4 rounded-xl border border-white/5 hover:border-amber-400/30 transition-colors">
+            <div class="flex items-center gap-2 mb-1.5">
+              <span class="text-xs font-bold text-amber-400"><i class="fa-solid fa-quote-left mr-1"></i>귤락</span>
+              <span class="text-xs text-slate-500">왓챠 코멘트 (4.3점)</span>
+            </div>
+            <p class="text-xs text-slate-200 leading-relaxed italic">
+              "신들의 거대한 유희를 뚫고 귀향하는 필멸자의 발걸음. 그 끝에 남은 것은 영웅의 영광이 아닌, 인간의 원초적인 잔상."
+            </p>
+          </div>
+
+          <!-- Quote 3 -->
+          <div class="glass-card p-4 rounded-xl border border-white/5 hover:border-amber-400/30 transition-colors">
+            <div class="flex items-center gap-2 mb-1.5">
+              <span class="text-xs font-bold text-amber-400"><i class="fa-solid fa-quote-left mr-1"></i>Giseokryan</span>
+              <span class="text-xs text-slate-500">왓챠 코멘트 (4.3점)</span>
+            </div>
+            <p class="text-xs text-slate-200 leading-relaxed italic">
+              "인간 사이의 신뢰와 친절함에 관하여. 전쟁을 겪은 인간은 그 전의 인간과 같은 존재일까?"
+            </p>
+          </div>
+
+          <!-- Note -->
+          <div class="text-xs text-slate-400 flex items-center gap-2 px-2">
+            <i class="fa-solid fa-circle-exclamation text-brand-watcha"></i>
+            <span>소수의 호불호 의견: "오케스트라나 미술관을 다녀온 듯 훌륭하나, 원초적 팝콘 재미는 덜하다" (서사 템포 지적)</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 6: Naver Reviews Deep Dive -->
+    <section class="slide flex-col justify-center w-full max-w-6xl h-full" data-slide="6">
+      <div class="mb-4">
+        <span class="text-xs font-bold text-brand-naver tracking-wider uppercase">Slide 06 / Platform Focus</span>
+        <h2 class="text-3xl md:text-4xl font-extrabold text-white mt-1">네이버: IMAX 전율과 실관람 가이드</h2>
+        <p class="text-slate-400 text-sm">시청각적 충격, 특별관 예매 열풍, 결말 및 쿠키 정보 소비의 장</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-6 my-auto items-center">
+        <!-- Quotes & Points -->
+        <div class="md:col-span-7 flex flex-col gap-3">
+          <!-- Quote 1 -->
+          <div class="glass-card p-4 rounded-xl border border-white/5 hover:border-cyan-400/30 transition-colors">
+            <div class="flex items-center gap-2 mb-1.5">
+              <span class="text-xs font-bold text-brand-naver"><i class="fa-solid fa-quote-left mr-1"></i>라일비 (ksi54)</span>
+              <span class="text-xs text-slate-500">네이버 블로그 후기 (만점 10점)</span>
+            </div>
+            <p class="text-xs text-slate-200 leading-relaxed italic">
+              "172분이라는 상영 시간이 어떻게 흘러갔는지 모를 만큼 몰입도가 높았다. 아이맥스 예매가 어려운 이유가 납득된다. BGM과 거인 병사 전투 연출이 압도적."
+            </p>
+          </div>
+
+          <!-- Quote 2 -->
+          <div class="glass-card p-4 rounded-xl border border-white/5 hover:border-cyan-400/30 transition-colors">
+            <div class="flex items-center gap-2 mb-1.5">
+              <span class="text-xs font-bold text-brand-naver"><i class="fa-solid fa-quote-left mr-1"></i>doona90</span>
+              <span class="text-xs text-slate-500">네이버 블로그 리뷰 (9.5점)</span>
+            </div>
+            <p class="text-xs text-slate-200 leading-relaxed italic">
+              "크리스토퍼 놀란이 20년 동안 품어온 꿈을 완성한 21세기 신화. 전쟁 트라우마에 시달리는 인간 오디세우스를 IMAX 거대 화면으로 마주해야 하는 이유."
+            </p>
+          </div>
+
+          <!-- Practical Guide Tags -->
+          <div class="glass-card p-4 rounded-xl bg-slate-900/90 border border-slate-800">
+            <h5 class="text-xs font-bold text-slate-300 mb-2 flex items-center gap-1.5">
+              <i class="fa-solid fa-compass text-cyan-400"></i> 네이버 관람객이 가장 많이 검색·언급한 실용 정보
+            </h5>
+            <div class="flex flex-wrap gap-2 text-xs">
+              <span class="px-2.5 py-1 rounded-lg bg-cyan-500/10 text-cyan-300 border border-cyan-500/20">❌ 쿠키 영상 없음 (퇴장 가능)</span>
+              <span class="px-2.5 py-1 rounded-lg bg-amber-500/10 text-amber-300 border border-amber-500/20">⏳ 러닝타임 172분 (화장실 팁)</span>
+              <span class="px-2.5 py-1 rounded-lg bg-indigo-500/10 text-indigo-300 border border-indigo-500/20">🎥 용아맥 / 돌비시네마 명당</span>
+              <span class="px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">📖 트로이 전쟁 사전지식</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Visual Asset -->
+        <div class="md:col-span-5 h-[340px] rounded-2xl overflow-hidden glass-card relative group">
+          <img src="assets/images/imax_cinema.jpg" alt="IMAX Movie Theater" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent flex flex-col justify-end p-5">
+            <span class="text-xs text-cyan-400 font-semibold">특별관 관람 신드롬</span>
+            <h4 class="text-sm font-bold text-white">"IMAX 스크린 전쟁, 21세기 시네마틱 체험"</h4>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 7: Radar Chart Comparison -->
+    <section class="slide flex-col justify-center w-full max-w-6xl h-full" data-slide="7">
+      <div class="mb-4">
+        <span class="text-xs font-bold text-amber-400 tracking-wider uppercase">Slide 07 / Multi-dimensional Analysis</span>
+        <h2 class="text-3xl md:text-4xl font-extrabold text-white mt-1">플랫폼별 평가 관점 레이더 비교</h2>
+        <p class="text-slate-400 text-sm">5가지 핵심 차원(시청각, 서사밀도, 대중성, 철학적여운, 특별관추천도) 분석</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-6 my-auto items-center">
+        <!-- Radar Chart -->
+        <div class="md:col-span-7 glass-card p-5 rounded-2xl h-[350px] flex items-center justify-center">
+          <div class="relative w-full h-full">
+            <canvas id="radarDimensionChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Dimension Explanation -->
+        <div class="md:col-span-5 flex flex-col gap-3 text-xs">
+          <div class="glass-card p-4 rounded-xl border-l-4 border-amber-400">
+            <h5 class="font-bold text-white text-sm mb-1">왓챠피디아 주도 차원</h5>
+            <p class="text-slate-300 leading-relaxed">
+              <strong>서사 밀도 (96점)</strong>와 <strong>철학적 여운 (95점)</strong>에서 압도적인 평가. 단순 블록버스터가 아닌 호메로스 원작을 딛고 선 현대적 인간학 텍스트로 영화를 수용.
+            </p>
+          </div>
+
+          <div class="glass-card p-4 rounded-xl border-l-4 border-cyan-400">
+            <h5 class="font-bold text-white text-sm mb-1">네이버 주도 차원</h5>
+            <p class="text-slate-300 leading-relaxed">
+              <strong>시청각 전율 (98점)</strong>과 <strong>특별관 추천도 (99점)</strong>에서 만점에 수렴. 루드비히 고란손의 사운드트랙과 IMAX 화면비 확장에 대한 체감 만족도가 절대적.
+            </p>
+          </div>
+
+          <div class="glass-card p-4 rounded-xl border-l-4 border-indigo-400">
+            <h5 class="font-bold text-white text-sm mb-1">대중적 오락성 차원</h5>
+            <p class="text-slate-300 leading-relaxed">
+              양측 모두 80~85점으로 안정적이나, 빠른 호흡의 마블형 엔터테인먼트와는 결이 다른 "장엄한 몰입형 오락"으로 인식됨.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 8: Key Topics & Keyword Frequency -->
+    <section class="slide flex-col justify-center w-full max-w-6xl h-full" data-slide="8">
+      <div class="mb-4">
+        <span class="text-xs font-bold text-amber-400 tracking-wider uppercase">Slide 08 / Topic Modeling</span>
+        <h2 class="text-3xl md:text-4xl font-extrabold text-white mt-1">핵심 토픽 및 최빈 언급 키워드</h2>
+        <p class="text-slate-400 text-sm">59건의 리뷰 본문에서 추출된 상위 핵심 토픽 빈도 분석</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-6 my-auto items-center">
+        <!-- Bar Chart Container -->
+        <div class="md:col-span-8 glass-card p-5 rounded-2xl h-[340px] flex flex-col justify-center">
+          <div class="flex justify-between items-center mb-2">
+            <h4 class="text-sm font-bold text-slate-300">리뷰 내 주요 토픽 언급 빈도수 (Topic Frequency)</h4>
+            <span class="text-xs text-slate-500 font-mono">단위: 건</span>
+          </div>
+          <div class="relative w-full h-[270px]">
+            <canvas id="topicBarChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Keyword Word Matrix -->
+        <div class="md:col-span-4 flex flex-col gap-3">
+          <div class="glass-card p-4 rounded-xl">
+            <span class="text-xs font-bold text-amber-400 block mb-2">감독 & 배우진 언급량</span>
+            <div class="flex flex-wrap gap-1.5 text-xs">
+              <span class="px-2.5 py-1 rounded bg-amber-500/20 text-amber-300 font-semibold">크리스토퍼 놀란 (52)</span>
+              <span class="px-2.5 py-1 rounded bg-slate-800 text-slate-300">맷 데이먼 (38)</span>
+              <span class="px-2.5 py-1 rounded bg-slate-800 text-slate-300">앤 해서웨이 (31)</span>
+              <span class="px-2.5 py-1 rounded bg-slate-800 text-slate-300">톰 홀랜드 (22)</span>
+            </div>
+          </div>
+
+          <div class="glass-card p-4 rounded-xl">
+            <span class="text-xs font-bold text-cyan-400 block mb-2">시네마틱 요소 언급량</span>
+            <div class="flex flex-wrap gap-1.5 text-xs">
+              <span class="px-2.5 py-1 rounded bg-cyan-500/20 text-cyan-300 font-semibold">IMAX / 특별관 (49)</span>
+              <span class="px-2.5 py-1 rounded bg-slate-800 text-slate-300">음악/루드비히 (41)</span>
+              <span class="px-2.5 py-1 rounded bg-slate-800 text-slate-300">트로이 목마 (35)</span>
+              <span class="px-2.5 py-1 rounded bg-slate-800 text-slate-300">거인 병사 (27)</span>
+            </div>
+          </div>
+
+          <div class="glass-card p-4 rounded-xl">
+            <span class="text-xs font-bold text-indigo-400 block mb-2">관람 체감 속성</span>
+            <div class="flex flex-wrap gap-1.5 text-xs">
+              <span class="px-2.5 py-1 rounded bg-indigo-500/20 text-indigo-300 font-semibold">172분 몰입감 (44)</span>
+              <span class="px-2.5 py-1 rounded bg-slate-800 text-slate-300">신화 각색 (39)</span>
+              <span class="px-2.5 py-1 rounded bg-slate-800 text-slate-300">템포/지루함(소수) (8)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 9: Strategic Implications & Conclusion -->
+    <section class="slide flex-col justify-center w-full max-w-6xl h-full" data-slide="9">
+      <div class="mb-6">
+        <span class="text-xs font-bold text-amber-400 tracking-wider uppercase">Slide 09 / Conclusions & Strategy</span>
+        <h2 class="text-3xl md:text-4xl font-extrabold text-white mt-1">결론 및 시네마틱 전략 인사이트</h2>
+        <p class="text-slate-400 text-sm">데이터 분석 결과를 바탕으로 도출한 흥행 지속 요인 및 관람 가이드</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 my-auto">
+        <div class="glass-card p-6 rounded-2xl border-t-4 border-amber-500 flex flex-col justify-between">
+          <div>
+            <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center text-lg mb-3">
+              <i class="fa-solid fa-couch"></i>
+            </div>
+            <h4 class="text-lg font-bold text-white mb-2">1. 극장의 본원적 가치 증명</h4>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              OTT 시대에 집에서 경험할 수 없는 사운드 출력과 대형 스크린의 물리적 충격을 완벽히 제공. '극장에서 보지 않으면 손해'라는 입소문이 흥행 롱런의 핵심 동력.
+            </p>
+          </div>
+          <div class="mt-4 pt-3 border-t border-white/10 text-xs text-amber-400 font-semibold">
+            인사이트: 특별관 N차 관람 확대
+          </div>
+        </div>
+
+        <div class="glass-card p-6 rounded-2xl border-t-4 border-cyan-500 flex flex-col justify-between">
+          <div>
+            <div class="w-10 h-10 rounded-xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center text-lg mb-3">
+              <i class="fa-solid fa-scale-balanced"></i>
+            </div>
+            <h4 class="text-lg font-bold text-white mb-2">2. 예술성과 대중성의 결합</h4>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              고대 신화의 무게감을 현대적인 인간성/트라우마의 서사로 치환하여 평론가(왓챠 4.30)와 일반 대중(네이버 9.30)을 동시에 포섭하는 데 성공.
+            </p>
+          </div>
+          <div class="mt-4 pt-3 border-t border-white/10 text-xs text-cyan-400 font-semibold">
+            인사이트: 전 연령층 입소문 확산
+          </div>
+        </div>
+
+        <div class="glass-card p-6 rounded-2xl border-t-4 border-emerald-500 flex flex-col justify-between">
+          <div>
+            <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-lg mb-3">
+              <i class="fa-solid fa-circle-check"></i>
+            </div>
+            <h4 class="text-lg font-bold text-white mb-2">3. 데이터 분석 기반 추천</h4>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              관람 전 '그리스 신화(트로이 전쟁)' 배경 지식을 가볍게 숙지하고, 가능한 한 화각과 사운드가 보장되는 특별관(IMAX, 돌비) 관람을 강력 권장.
+            </p>
+          </div>
+          <div class="mt-4 pt-3 border-t border-white/10 text-xs text-emerald-400 font-semibold">
+            인사이트: 관람 만족도 극대화 가이드
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer Info -->
+      <div class="mt-8 text-center text-xs text-slate-500">
+        발표 완료 • 데이터 분석 파일: <code class="text-slate-400">movie_reviews.csv</code> & <code class="text-slate-400">review_comparison.csv</code>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Bottom Navigation & Progress Bar -->
+  <footer class="w-full px-8 py-3 glass-card border-t border-white/10 z-20 flex flex-col gap-2">
+    <!-- Progress Line -->
+    <div class="w-full bg-slate-800 h-1 rounded-full overflow-hidden">
+      <div id="progressBar" class="bg-gradient-to-r from-amber-500 to-cyan-400 h-full w-[11.1%] transition-all duration-300"></div>
+    </div>
+
+    <!-- Navigation Buttons -->
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <button onclick="prevSlide()" class="px-4 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold flex items-center gap-1.5 transition-colors border border-slate-700">
+          <i class="fa-solid fa-chevron-left"></i> 이전
+        </button>
+        <button onclick="nextSlide()" class="px-4 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-bold flex items-center gap-1.5 transition-colors shadow-lg shadow-amber-500/20">
+          다음 <i class="fa-solid fa-chevron-right"></i>
+        </button>
+      </div>
+
+      <!-- Quick Slide Dots -->
+      <div class="hidden md:flex items-center gap-1.5" id="slideDots">
+        <!-- Rendered by JS -->
+      </div>
+
+      <div class="text-xs text-slate-400 font-mono">
+        Use Keys: <kbd class="px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">←</kbd> <kbd class="px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">→</kbd> or <kbd class="px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">Space</kbd>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Script for Navigation & Interactive Charts -->
+  <script>
+    let currentSlide = 1;
+    const totalSlides = 9;
+    let chartsInitialized = {};
+
+    function updateSlide() {
+      document.querySelectorAll('.slide').forEach(slide => {
+        slide.classList.remove('active');
+        if (parseInt(slide.getAttribute('data-slide')) === currentSlide) {
+          slide.classList.add('active');
+        }
+      });
+
+      // Update counters
+      document.getElementById('currentSlideNum').innerText = currentSlide;
+      document.getElementById('totalSlideNum').innerText = totalSlides;
+
+      // Update progress bar
+      const progressPercent = (currentSlide / totalSlides) * 100;
+      document.getElementById('progressBar').style.width = `${progressPercent}%`;
+
+      // Update dots
+      document.querySelectorAll('.dot-btn').forEach((dot, idx) => {
+        if (idx + 1 === currentSlide) {
+          dot.className = 'dot-btn w-6 h-2 rounded-full bg-amber-400 transition-all';
+        } else {
+          dot.className = 'dot-btn w-2 h-2 rounded-full bg-slate-700 hover:bg-slate-500 transition-all';
+        }
+      });
+
+      // Initialize slide-specific charts on entry
+      handleChartTriggers(currentSlide);
+    }
+
+    function nextSlide() {
+      if (currentSlide < totalSlides) {
+        currentSlide++;
+        updateSlide();
+      }
+    }
+
+    function prevSlide() {
+      if (currentSlide > 1) {
+        currentSlide--;
+        updateSlide();
+      }
+    }
+
+    function goToSlide(n) {
+      if (n >= 1 && n <= totalSlides) {
+        currentSlide = n;
+        updateSlide();
+      }
+    }
+
+    function toggleFullScreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        }
+      }
+    }
+
+    // Keyboard navigation
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+        e.preventDefault();
+        nextSlide();
+      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        e.preventDefault();
+        prevSlide();
+      } else if (e.key === 'f' || e.key === 'F') {
+        toggleFullScreen();
+      } else if (e.key === 'Home') {
+        goToSlide(1);
+      } else if (e.key === 'End') {
+        goToSlide(totalSlides);
+      }
+    });
+
+    // Touch swipe support
+    let touchStartX = 0;
+    window.addEventListener('touchstart', (e) => {
+      touchStartX = e.touches[0].clientX;
+    });
+    window.addEventListener('touchend', (e) => {
+      const touchEndX = e.changedTouches[0].clientX;
+      if (touchStartX - touchEndX > 50) {
+        nextSlide();
+      } else if (touchEndX - touchStartX > 50) {
+        prevSlide();
+      }
+    });
+
+    // Generate Dots
+    const dotsContainer = document.getElementById('slideDots');
+    for (let i = 1; i <= totalSlides; i++) {
+      const dot = document.createElement('button');
+      dot.className = 'dot-btn w-2 h-2 rounded-full bg-slate-700 hover:bg-slate-500 transition-all';
+      dot.onclick = () => goToSlide(i);
+      dotsContainer.appendChild(dot);
+    }
+
+    // ==========================================
+    // Chart.js Implementations
+    // ==========================================
+    function handleChartTriggers(slideNum) {
+      if (slideNum === 4 && !chartsInitialized[4]) {
+        initRatingComparisonChart();
+        chartsInitialized[4] = true;
+      } else if (slideNum === 7 && !chartsInitialized[7]) {
+        initRadarDimensionChart();
+        chartsInitialized[7] = true;
+      } else if (slideNum === 8 && !chartsInitialized[8]) {
+        initTopicBarChart();
+        chartsInitialized[8] = true;
+      }
+    }
+
+    // Chart 1: Bar Chart (Rating & Sentiment)
+    function initRatingComparisonChart() {
+      const ctx = document.getElementById('ratingComparisonChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['왓챠피디아 (29건)', '네이버 (30건)', 'CGV 골든에그지수(참조)'],
+          datasets: [
+            {
+              label: '10점 환산 평균 평점',
+              data: [8.60, 9.30, 9.70],
+              backgroundColor: ['rgba(255, 5, 88, 0.75)', 'rgba(3, 199, 90, 0.75)', 'rgba(245, 158, 11, 0.75)'],
+              borderColor: ['#FF0558', '#03C75A', '#F59E0B'],
+              borderWidth: 2,
+              borderRadius: 8,
+              yAxisID: 'y'
+            },
+            {
+              label: '긍정 평가율 (%)',
+              data: [100.0, 100.0, 97.0],
+              backgroundColor: 'rgba(59, 130, 246, 0.4)',
+              borderColor: '#3B82F6',
+              borderWidth: 2,
+              type: 'line',
+              tension: 0.3,
+              pointRadius: 6,
+              pointBackgroundColor: '#3B82F6',
+              yAxisID: 'y1'
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: { duration: 1200, easing: 'easeOutQuart' },
+          plugins: {
+            legend: {
+              labels: { color: '#9CA3AF', font: { family: 'Pretendard', size: 12 } }
+            }
+          },
+          scales: {
+            x: {
+              ticks: { color: '#D1D5DB', font: { family: 'Pretendard', weight: 'bold' } },
+              grid: { display: false }
+            },
+            y: {
+              min: 0,
+              max: 10,
+              ticks: { color: '#9CA3AF' },
+              grid: { color: 'rgba(255, 255, 255, 0.08)' },
+              title: { display: true, text: '평점 (10점 기준)', color: '#9CA3AF' }
+            },
+            y1: {
+              min: 50,
+              max: 100,
+              position: 'right',
+              ticks: { color: '#9CA3AF' },
+              grid: { display: false },
+              title: { display: true, text: '긍정율 (%)', color: '#9CA3AF' }
+            }
+          }
+        }
+      });
+    }
+
+    // Chart 2: Radar Chart (5 Evaluation Dimensions)
+    function initRadarDimensionChart() {
+      const ctx = document.getElementById('radarDimensionChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'radar',
+        data: {
+          labels: ['시청각 전율 (IMAX/OST)', '서사 압축 및 밀도', '대중적 오락성', '철학적 여운/인간성', '특별관 추천 강도'],
+          datasets: [
+            {
+              label: '왓챠피디아 평가 지수',
+              data: [88, 96, 78, 95, 84],
+              backgroundColor: 'rgba(255, 5, 88, 0.25)',
+              borderColor: '#FF0558',
+              pointBackgroundColor: '#FF0558',
+              borderWidth: 2,
+              pointRadius: 4
+            },
+            {
+              label: '네이버 평가 지수',
+              data: [98, 86, 85, 87, 99],
+              backgroundColor: 'rgba(3, 199, 90, 0.25)',
+              borderColor: '#03C75A',
+              pointBackgroundColor: '#03C75A',
+              borderWidth: 2,
+              pointRadius: 4
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: { duration: 1400, easing: 'easeOutQuart' },
+          plugins: {
+            legend: {
+              labels: { color: '#D1D5DB', font: { family: 'Pretendard', size: 12 } }
+            }
+          },
+          scales: {
+            r: {
+              angleLines: { color: 'rgba(255, 255, 255, 0.1)' },
+              grid: { color: 'rgba(255, 255, 255, 0.1)' },
+              pointLabels: { color: '#F3F4F6', font: { family: 'Pretendard', size: 11, weight: 'bold' } },
+              ticks: { display: false, min: 50, max: 100 }
+            }
+          }
+        }
+      });
+    }
+
+    // Chart 3: Horizontal Bar Chart (Key Topic Frequencies)
+    function initTopicBarChart() {
+      const ctx = document.getElementById('topicBarChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: [
+            '놀란 감독 연출력/스케일',
+            'IMAX/특별관 관람 추천',
+            '172분 몰입도 (지루함 없음)',
+            '루드비히 고란손 음악/OST',
+            '호메로스 신화 각색/철학',
+            '배우진(데이먼/해서웨이) 연기',
+            '쿠키영상/관람 꿀팁',
+            '느린 템포 호불호 (소수 의견)'
+          ],
+          datasets: [{
+            label: '언급 빈도 (건수 / 59건 중)',
+            data: [52, 49, 44, 41, 39, 38, 28, 8],
+            backgroundColor: [
+              '#F59E0B',
+              '#06B6D4',
+              '#3B82F6',
+              '#8B5CF6',
+              '#EC4899',
+              '#10B981',
+              '#64748B',
+              '#EF4444'
+            ],
+            borderRadius: 6
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: { duration: 1200, easing: 'easeOutQuart' },
+          plugins: {
+            legend: { display: false }
+          },
+          scales: {
+            x: {
+              max: 60,
+              ticks: { color: '#9CA3AF' },
+              grid: { color: 'rgba(255, 255, 255, 0.08)' }
+            },
+            y: {
+              ticks: { color: '#F3F4F6', font: { family: 'Pretendard', size: 11 } },
+              grid: { display: false }
+            }
+          }
+        }
+      });
+    }
+
+    // Initialize slide on load
+    updateSlide();
+  </script>
+</body>
+</html>
